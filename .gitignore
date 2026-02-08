@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Jupyter checkpoints (but keep documentation notebooks)
+.ipynb_checkpoints/
+*-checkpoint.ipynb
+
+# Dataset Folders - Ignore all
+dataset/
+*/dataset/
+*_dataset/
+normalized_dataset/
+*/normalized_dataset/
+eval/
+*eval/
+normalized_eval/
+details.txt
+
+# Dataset Files - Ignore all data files
+*.csv
+*.txt
+!details.txt
+!README.txt
+!requirements.txt
+
+# Generated Training Outputs - Ignore all PNG graphs
+*.png
+
+# Model Checkpoints and temp files
+*.zip
+*.tar.gz
+*.rar
+checkpoints/
+*.h5
+*.ckpt
+*.ckpt.meta
+model_weights/
+training_logs/
+*.log
+
+# Temporary & OS files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.env
+nn.py
+
+# Keep these for portfolio/GitHub/Kaggle
+!Documentation.ipynb
+!Classifier.ipynb
+!Trainer.py
+!CNN_trainer.py
+!normalization.py
+!model_tester.py
+!details.txt

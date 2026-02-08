@@ -1,0 +1,83 @@
+Model Name:
+Mask Detector CNN
+
+Model Description:
+A Convolutional Neural Network (CNN) designed to detect whether a person is wearing a face mask or not 
+from image data. The model uses 3 convolutional blocks with max pooling for feature extraction, followed 
+by dense layers for classification. It performs binary classification (With Mask / Without Mask) with 
+96x256 pixel RGB images as input. The model was trained on 10 epochs with adam optimizer and binary 
+crossentropy loss function.
+
+Model Parameters:
+- Input Shape: (256, 256, 3) - RGB images of 256x256 pixels
+- Architecture:
+  * Rescaling Layer: Normalizes pixel values to [0, 1]
+  * Conv2D Block 1: 32 filters, 3x3 kernel + MaxPooling
+  * Conv2D Block 2: 32 filters, 3x3 kernel + MaxPooling
+  * Conv2D Block 3: 16 filters, 3x3 kernel + MaxPooling
+  * Flatten Layer
+  * Dense Layer: 8 neurons with ReLU activation
+  * Dropout: 0.3 (30% dropout for regularization)
+  * Output Layer: 1 neuron with Sigmoid activation (binary classification)
+- Total Trainable Parameters: 130,000+
+- Training Configuration:
+  * Batch Size: 32
+  * Epochs: 10
+  * Optimizer: Adam
+  * Loss Function: Binary Crossentropy
+  * Train/Validation Split: 85% / 15%
+
+Model Precision:
+Typically achieves 85-95% accuracy on validation data, depending on dataset quality and image diversity.
+The confusion matrix shows the true positives, false positives, false negatives, and true negatives 
+on the evaluation dataset. (Check accuracy_graph.png and confusion_matrix.png for detailed performance metrics)
+
+Model Inference Code:
+```python
+import tensorflow as tf
+import cv2
+import numpy as np
+
+# Load the trained model
+model = tf.keras.models.load_model('./Models/mask_detector.keras')
+
+# Function to predict on a single image
+def predict_mask(image_path):
+    img = cv2.imread(image_path)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img = cv2.resize(img, (256, 256))
+    img = img.astype("float32") / 255.0
+    img = np.expand_dims(img, axis=0)
+    
+    pred = model.predict(img)[0][0]
+    label = "WITHOUT Mask" if pred > 0.5 else "WITH Mask"
+    confidence = pred if pred > 0.5 else (1 - pred)
+    
+    return label, confidence * 100
+
+# Example usage
+label, confidence = predict_mask('path/to/image.jpg')
+print(f"Prediction: {label} (Confidence: {confidence:.2f}%)")
+```
+
+Developer Info:
+- Developer: Keshav Ghai
+- Role: Aspiring AI/ML Developer
+- Contact: Available upon request
+- Model Created: February 2026
+- Framework: TensorFlow/Keras
+- Programming Language: Python
+- Notes: This is an educational project demonstrating CNN implementation for computer vision tasks.
+
+Credits:
+- Dataset: Face mask detection dataset (custom normalized dataset with 'with_mask' and 'without_mask' categories)
+- Dataset Preprocessing: Custom normalization script (normalization.py) written to standardize image sizes to 256x256 pixels
+- Libraries used:
+  * TensorFlow - Deep learning framework
+  * OpenCV - Image processing library
+  * NumPy - Numerical computations
+  * Pandas - Data manipulation
+  * Scikit-learn - Machine learning utilities and confusion matrix
+  * Matplotlib/Seaborn - Data visualization
+- Inspiration: Real-world mask detection applications during pandemic awareness
+- Dataset Source: [Insert original dataset source/attribution if applicable]
