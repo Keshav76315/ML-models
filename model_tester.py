@@ -194,14 +194,77 @@ def mask_detector():
             print(f"Error processing image: {e}\n")
 
 
+def tumor_detector():
+    import tensorflow as tf
+    import json
+    import numpy as np
+    import os
+    
+    print("Loading model and class mapping....")
+    model = tf.keras.models.load_model('./Models/brain_tumor_model.keras')
+    
+    with open('./tensorflow/tumor_detection/class_indices.json', 'r') as f:
+        class_indices = json.load(f)
+    
+    # Reverse mapping: index to class name
+    index_to_class = {v: k for k, v in class_indices.items()}
+    
+    IMG_SIZE = (256, 256)
+    
+    print("Starting Brain Tumor Detection")
+    print(f"Available classes: {list(index_to_class.values())}\n")
+    
+    while True:
+        img_path = input("Enter MRI image path ('quit' to exit): ").strip()
+        
+        if img_path.lower() == "quit":
+            return
+        
+        if not os.path.exists(img_path):
+            print("Invalid path. Try again.\n")
+            continue
+        
+        try:
+            # Load and preprocess image
+            img = tf.keras.preprocessing.image.load_img(img_path, target_size=IMG_SIZE)
+            img = tf.keras.preprocessing.image.img_to_array(img)
+            img = np.expand_dims(img, axis=0)  # Add batch dimension
+            img = img / 255.0  # Normalize
+            
+            # Make prediction
+            preds = model.predict(img, verbose=0)
+            class_id = np.argmax(preds[0])
+            class_name = index_to_class[class_id]
+            confidence = float(np.max(preds[0]) * 100)
+            
+            print(f"\nPredicted Class: {class_name}")
+            print(f"Confidence: {confidence:.2f}%")
+            
+            # Clinical interpretation
+            if class_name == "notumor":
+                print("Clinical: Tumor Present - NO")
+            else:
+                print(f"Clinical: Tumor Present - YES ({class_name.upper()})")
+            
+            # Show all class probabilities
+            print("\nAll Class Probabilities:")
+            for idx, cls in index_to_class.items():
+                print(f"  {cls}: {preds[0][idx]*100:.2f}%")
+            print()
+        
+        except Exception as e:
+            print(f"Error processing image: {e}\n")
+
+
 print("\n===== ML Model Tester =====")
 print("0 - Language Classifier")
 print("1 - Sentiment Analysis")
 print("2 - Depression Predictor")
 print("3 - Mask Detector")
+print("4 - Tumor Detector")
 print("============================\n")
 
-model_num = int(input("Which model do you want to use? (0-3): "))
+model_num = int(input("Which model do you want to use? (0-4): "))
 
 if model_num == 0:
     lang_classifier()
@@ -211,5 +274,7 @@ elif model_num == 2:
     depression_predictor()
 elif model_num == 3:
     mask_detector()
+elif model_num == 4:
+    tumor_detector()
 else:
     print("Invalid model number.")

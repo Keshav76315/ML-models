@@ -39,6 +39,11 @@ tensorflow/
 │   ├── training scripts
 │   └── word_tokenizer.json
 │
+├── tumor_detection/
+│   ├── normalization scripts
+│   ├── training scripts
+│   └── class_indices.json
+│
 ├── .gitignore
 └── model_tester.py   ← Unified inference for all models
 ```
@@ -129,6 +134,29 @@ Below is an overview of each model included in this repository.
 
 ---
 
+## 5️⃣ **Brain Tumor Detection (Multi-Class CNN)**
+
+**Goal:** Classify MRI brain scans into **4 categories**:
+* **No Tumor** (notumor)
+* **Glioma** (glioma)
+* **Meningioma** (meningioma)
+* **Pituitary** (pituitary)
+
+**Techniques Used:**
+
+* OpenCV preprocessing (256×256 normalization)
+* 3-layer CNN architecture
+* Multi-class classification with softmax
+* Confusion matrix for detailed analysis
+* ≥100k trainable parameters
+
+**Training Output:**
+
+* `brain_tumor_model.keras`
+* `class_indices.json`
+
+---
+
 # 🎯 **Unified Inference System — `model_tester.py`**
 
 This script allows you to test **any** of the trained models from a single entry point.
@@ -146,6 +174,7 @@ Then choose:
 1 → Sentiment Analysis
 2 → Depression Predictor
 3 → Mask Detector
+4 → Brain Tumor Detection
 ```
 
 ---
@@ -177,6 +206,7 @@ Examples:
 ./Models/sentiment_model.keras
 ./Models/depression_model.keras
 ./Models/mask_detector.keras
+./Models/brain_tumor_model.keras
 ```
 
 4. Now you can use `model_tester.py` to run inference.
@@ -191,7 +221,8 @@ Examples:
 ├── language_classifier.h5
 ├── sentiment_model.keras
 ├── depression_model.keras
-└── mask_detector.keras
+├── mask_detector.keras
+└── brain_tumor_model.keras
 ```
 
 This keeps all inference handling consistent with `model_tester.py`.

@@ -28,7 +28,6 @@ details.txt
 # Dataset Files - Ignore all data files
 *.csv
 *.txt
-!details.txt
 !README.txt
 !requirements.txt
 
@@ -64,4 +63,3 @@ nn.py
 !CNN_trainer.py
 !normalization.py
 !model_tester.py
-!details.txt
