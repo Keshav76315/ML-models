@@ -44,6 +44,15 @@ tensorflow/
 │   ├── training scripts
 │   └── class_indices.json
 │
+├── leaf_disease/
+│   ├── normalization scripts
+│   ├── training scripts
+│   └── class_indices.json
+│
+├── toxic_classifier/
+│   ├── training scripts
+│   └── toxic_tokenizer.json
+│
 ├── .gitignore
 └── model_tester.py   ← Unified inference for all models
 ```
@@ -157,6 +166,49 @@ Below is an overview of each model included in this repository.
 
 ---
 
+## 6️⃣ **Leaf Disease Classification (CNN)**
+
+**Goal:** Classify plant leaf diseases into **38 different categories** (e.g., Apple Scab, Tomato Blight, Potato Late Blight, etc.).
+**Techniques Used:**
+
+* OpenCV preprocessing (256×256 normalization)
+* 3-layer CNN architecture with Conv2D + MaxPooling
+* Multi-class classification with softmax
+* Plant + Disease mapping system
+* Confusion matrix analysis
+
+**Training Output:**
+
+* `leaf_disease_model.keras`
+* `class_indices.json`
+
+---
+
+## 7️⃣ **Toxic Comments Classifier (BiLSTM)**
+
+**Goal:** Classify comments into **6 toxicity categories**:
+* **Toxic**
+* **Severe Toxic**
+* **Obscene**
+* **Threat**
+* **Insult**
+* **Identity Hate**
+
+**Techniques Used:**
+
+* Word-level tokenizer (20k vocabulary)
+* BiLSTM architecture
+* Multi-label classification with sigmoid activation
+* Binary Crossentropy loss
+* ≥50k trainable parameters
+
+**Training Output:**
+
+* `toxic_model.keras`
+* `toxic_tokenizer.json`
+
+---
+
 # 🎯 **Unified Inference System — `model_tester.py`**
 
 This script allows you to test **any** of the trained models from a single entry point.
@@ -175,6 +227,8 @@ Then choose:
 2 → Depression Predictor
 3 → Mask Detector
 4 → Brain Tumor Detection
+5 → Leaf Disease Classifier
+6 → Toxic Comments Classifier
 ```
 
 ---
@@ -207,6 +261,8 @@ Examples:
 ./Models/depression_model.keras
 ./Models/mask_detector.keras
 ./Models/brain_tumor_model.keras
+./Models/leaf_disease_model.keras
+./Models/toxic_model.keras
 ```
 
 4. Now you can use `model_tester.py` to run inference.
@@ -222,7 +278,9 @@ Examples:
 ├── sentiment_model.keras
 ├── depression_model.keras
 ├── mask_detector.keras
-└── brain_tumor_model.keras
+├── brain_tumor_model.keras
+├── leaf_disease_model.keras
+└── toxic_model.keras
 ```
 
 This keeps all inference handling consistent with `model_tester.py`.

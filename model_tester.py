@@ -256,15 +256,145 @@ def tumor_detector():
             print(f"Error processing image: {e}\n")
 
 
+def leaf_disease():
+    import tensorflow as tf
+    import json
+    import numpy as np
+    import os
+    import cv2
+    
+    print("Loading model and class mapping....")
+    model = tf.keras.models.load_model('./Models/leaf_disease_model.keras')
+    
+    with open('./tensorflow/leaf_disease/class_indices.json', 'r') as f:
+        class_indices = json.load(f)
+    
+    # Reverse mapping: class name to info
+    index_to_class = {v['index']: k for k, v in class_indices.items()}
+    
+    IMG_SIZE = (256, 256)
+    
+    print("Starting Leaf Disease Detection")
+    
+    while True:
+        img_path = input("Enter leaf image path ('quit' to exit): ").strip()
+        
+        if img_path.lower() == "quit":
+            return
+        
+        if not os.path.exists(img_path):
+            print("Invalid path. Try again.\n")
+            continue
+        
+        try:
+            # Load and preprocess image
+            img = cv2.imread(img_path)
+            if img is None:
+                print("Could not read image. Try another file.\n")
+                continue
+            
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img = cv2.resize(img, IMG_SIZE)
+            img = img.astype("float32") / 255.0
+            img = np.expand_dims(img, axis=0)
+            
+            # Make prediction
+            preds = model.predict(img, verbose=0)[0]
+            class_id = np.argmax(preds)
+            class_name = index_to_class[class_id]
+            confidence = float(np.max(preds) * 100)
+            
+            # Extract plant and disease from class mapping
+            class_info = class_indices[class_name]
+            plant = class_info['plant']
+            disease = class_info['disease']
+            
+            # Plant-level confidence (sum of all this plant's disease probabilities)
+            plant_indices = [info['index'] for k, info in class_indices.items() 
+                           if class_indices[k]['plant'] == plant]
+            plant_confidence = float(sum(preds[i] for i in plant_indices) * 100)
+            
+            print(f"\nPlant: {plant}")
+            print(f"Disease: {disease}")
+            print(f"Confidence: {confidence:.2f}%")
+            print(f"Plant Detection Confidence: {plant_confidence:.2f}%\n")
+        
+        except Exception as e:
+            print(f"Error processing image: {e}\n")
+
+
+def toxic_classifier():
+    import tensorflow as tf
+    import json
+    import numpy as np
+    
+    print("Loading tokenizer....")
+    with open('./tensorflow/toxic_classifier/toxic_tokenizer.json', 'r') as f:
+        tokenizer_json = json.load(f)
+    
+    tokenizer = tf.keras.preprocessing.text.tokenizer_from_json(tokenizer_json)
+    
+    print("Loading model....")
+    model = tf.keras.models.load_model('./Models/toxic_model.keras')
+    
+    LABELS = ["toxic", "severe_toxic", "obscene", "threat", "insult", "identity_hate"]
+    MAX_LEN = 256
+    
+    print("Starting Toxic Comments Classification")
+    print(f"Labels: {LABELS}\n")
+    
+    while True:
+        comment = input("Enter a comment ('quit' to exit): ").strip()
+        
+        if comment.lower() == "quit":
+            return
+        
+        if not comment:
+            print("Please enter a non-empty comment.\n")
+            continue
+        
+        try:
+            # Preprocess text
+            seq = tokenizer.texts_to_sequences([comment])
+            pad = tf.keras.preprocessing.sequence.pad_sequences(seq, maxlen=MAX_LEN, padding="post")
+            
+            # Make prediction
+            preds = model.predict(pad, verbose=0)[0]
+            
+            # Get detected toxicity labels
+            detected = []
+            for i, label in enumerate(LABELS):
+                if preds[i] > 0.5:
+                    detected.append((label, preds[i] * 100))
+            
+            if detected:
+                print("\nToxicity Detected:")
+                for label, confidence in detected:
+                    print(f"  {label}: {confidence:.2f}%")
+            else:
+                print("\nNo toxicity detected.")
+            
+            # Show all probabilities
+            print("\nAll Probabilities:")
+            for label, prob in zip(LABELS, preds):
+                print(f"  {label}: {prob*100:.2f}%")
+            print()
+        
+        except Exception as e:
+            print(f"Error processing comment: {e}\n")
+
+
 print("\n===== ML Model Tester =====")
 print("0 - Language Classifier")
 print("1 - Sentiment Analysis")
 print("2 - Depression Predictor")
 print("3 - Mask Detector")
 print("4 - Tumor Detector")
+print("5 - Leaf Disease Classifier")
+print("6 - Toxic Comments Classifier")
 print("============================\n")
 
-model_num = int(input("Which model do you want to use? (0-4): "))
+model_num = int(input("Which model do you want to use? (0-6): "))
 
 if model_num == 0:
     lang_classifier()
@@ -276,5 +406,9 @@ elif model_num == 3:
     mask_detector()
 elif model_num == 4:
     tumor_detector()
+elif model_num == 5:
+    leaf_disease()
+elif model_num == 6:
+    toxic_classifier()
 else:
     print("Invalid model number.")

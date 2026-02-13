@@ -55,6 +55,7 @@ training_logs/
 *~
 .env
 nn.py
+resume_screener/
 
 # Keep these for portfolio/GitHub/Kaggle
 !Documentation.ipynb
