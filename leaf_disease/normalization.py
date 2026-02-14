@@ -18,11 +18,12 @@ def process_split(split):
 
     for cls in classes:
         cls_input = os.path.join(INPUT_PATH, cls)
+        if not os.path.isdir(cls_input):
+            continue
         cls_output = os.path.join(OUTPUT_PATH, cls)
         ensure_dir(cls_output)
 
         image_names = os.listdir(cls_input)
-
         for img in image_names:
             if not img.lower().endswith(('.jpg', '.jpeg', '.png')):
                 continue

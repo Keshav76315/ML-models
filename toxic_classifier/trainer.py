@@ -47,8 +47,7 @@ tokenizer = tf.keras.preprocessing.text.Tokenizer(
 tokenizer.fit_on_texts(X_train)
 
 with open("./tensorflow/toxic_classifier/toxic_tokenizer.json", "w") as f:
-    json.dump(tokenizer.to_json(), f)
-
+    f.write(tokenizer.to_json())
 # Convert to padded sequences
 X_train_pad = tf.keras.preprocessing.sequence.pad_sequences(
     tokenizer.texts_to_sequences(X_train), maxlen=MAX_LEN, padding="post"
@@ -60,7 +59,7 @@ X_val_pad = tf.keras.preprocessing.sequence.pad_sequences(
 # 5. MODEL — BiLSTM
 model = tf.keras.Sequential([
     tf.keras.layers.Input(shape=(MAX_LEN,), dtype="int32"),
-    tf.keras.layers.Embedding(MAX_VOCAB, 8),
+    tf.keras.layers.Embedding(MAX_VOCAB + 1, 8),
     tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(8)),
     tf.keras.layers.Dropout(0.3),
     tf.keras.layers.Dense(64, activation="relu"),
@@ -86,7 +85,7 @@ history = model.fit(
     batch_size=32
 )
 
-model.save("./tensorflow/toxic_classifier/toxic_model.keras")
+model.save("./Models/toxic_comments_detection.keras")
 print("Model saved.")
 
 # 7. LOSS GRAPH
@@ -144,9 +143,8 @@ while True:
     top_label = LABELS[top_index]
     top_conf = float(probs[top_index])
 
-    print(f"\nTop Label: {top_label*100:.2f}%")
-    print("Confidence:", round(top_conf, 4))
-
+    print(f"\nTop Label: {top_label}")
+    print(f"Confidence: {top_conf*100:.2f}%")
     print("\nFull probabilities:")
     for lbl, p in zip(LABELS, probs):
         print(f"{lbl}: {round(float(p), 4)}")

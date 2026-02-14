@@ -55,7 +55,10 @@ training_logs/
 *~
 .env
 nn.py
+
+# Standalone Projects
 resume_screener/
+ISL_detector/
 
 # Keep these for portfolio/GitHub/Kaggle
 !Documentation.ipynb

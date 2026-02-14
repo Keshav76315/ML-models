@@ -57,9 +57,8 @@
         "index": 9,
         "plant": "Corn",
         "disease_raw": "Northern_Leaf_Blight",
-        "disease": "Northern, Leaf, Blight"
-    },
-    "Corn___healthy": {
+        "disease": "Northern Leaf Blight"
+    },    "Corn___healthy": {
         "index": 10,
         "plant": "Corn",
         "disease_raw": "healthy",
@@ -72,20 +71,18 @@
         "disease": "Black Rot"
     },
     "Grape___Esca_(Black_Measles)": {
+    "Grape___Esca_(Black_Measles)": {
         "index": 12,
         "plant": "Grape",
         "disease_raw": "Esca_(Black_Measles)",
-        "disease": "Esca (Black, Measles)"
-    },
+        "disease": "Esca (Black Measles)"
+    },        "index": 13,
     "Grape___Leaf_blight_(Isariopsis_Leaf_Spot)": {
         "index": 13,
         "plant": "Grape",
         "disease_raw": "Leaf_blight_(Isariopsis_Leaf_Spot)",
-        "disease": "Leaf Blight (Isariopsis, Leaf, Spot)"
-    },
-    "Grape___healthy": {
-        "index": 14,
-        "plant": "Grape",
+        "disease": "Leaf Blight (Isariopsis Leaf Spot)"
+    },        "plant": "Grape",
         "disease_raw": "healthy",
         "disease": "Healthy"
     },
@@ -186,13 +183,12 @@
         "disease": "Late Blight"
     },
     "Tomato___Leaf_Mold": {
+    "Tomato___Leaf_Mold": {
         "index": 31,
         "plant": "Tomato",
         "disease_raw": "Leaf_Mold",
-        "disease": "Leaf, Mold"
-    },
-    "Tomato___Septoria_leaf_spot": {
-        "index": 32,
+        "disease": "Leaf Mold"
+    },        "index": 32,
         "plant": "Tomato",
         "disease_raw": "Septoria_leaf_spot",
         "disease": "Septoria Leaf Spot"
@@ -207,16 +203,15 @@
         "index": 34,
         "plant": "Tomato",
         "disease_raw": "Target_Spot",
-        "disease": "Target, Spot"
+        "disease": "Target Spot"
     },
+    "Tomato___Tomato_Yellow_Leaf_Curl_Virus": {
     "Tomato___Tomato_Yellow_Leaf_Curl_Virus": {
         "index": 35,
         "plant": "Tomato",
         "disease_raw": "Tomato_Yellow_Leaf_Curl_Virus",
-        "disease": "Tomato, Yellow, Leaf, Curl, Virus"
-    },
-    "Tomato___Tomato_mosaic_virus": {
-        "index": 36,
+        "disease": "Tomato Yellow Leaf Curl Virus"
+    },        "index": 36,
         "plant": "Tomato",
         "disease_raw": "Tomato_mosaic_virus",
         "disease": "Tomato Mosaic Virus"

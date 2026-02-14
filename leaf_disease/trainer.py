@@ -68,9 +68,10 @@ def build_class_map():
     mapping = {}
 
     for idx, cls in enumerate(class_names):
+        if "___" not in cls:
+            raise ValueError(f"Class name '{cls}' does not follow expected 'Plant___Disease' format")
         plant, disease_raw = cls.split("___", 1)
         disease_clean = clean_disease_name(disease_raw)
-
         mapping[cls] = {
             "index": idx,
             "plant": plant,
@@ -187,9 +188,9 @@ plt.close()
 def predict_image(img_path):
     img = tf.keras.preprocessing.image.load_img(img_path, target_size=IMG_SIZE)
     img = tf.keras.preprocessing.image.img_to_array(img)
-    img = np.expand_dims(img, axis=0) / 255.0
+    img = np.expand_dims(img, axis=0)  # Rescaling layer handles normalization
 
-    probs = model.predict(img)[0]
+    probs = model.predict(img)[0]    
     class_id = int(np.argmax(probs))
     class_name = class_names[class_id]
     disease_conf = float(np.max(probs))
