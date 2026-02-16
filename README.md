@@ -53,6 +53,13 @@ tensorflow/
 │   ├── training scripts
 │   └── toxic_tokenizer.json
 │
+├── clustering/
+│   └── cat_dog/
+│       ├── semi_trainer.py
+│       ├── semi_cluster.py
+│       ├── normalization.py
+│       └── documentation.ipynb
+│
 ├── .gitignore
 └── model_tester.py   ← Unified inference for all models
 ```
@@ -209,6 +216,31 @@ Below is an overview of each model included in this repository.
 
 ---
 
+## 🐾 **Clustering (Cats vs Dogs)**
+
+**Goal:** Demonstrate unsupervised and semi-supervised workflows to separate cat and dog images using dimensionality reduction and clustering.
+
+Key items in `clustering/cat_dog/`:
+
+- `semi_trainer.py` — Semi-supervised embedding/trainer used to generate image embeddings (WORKING).
+- `semi_cluster.py` — Clustering pipeline that runs PCA/t-SNE and KMeans to produce the notebook's results and visualizations (WORKING).
+- `normalization.py` — Image normalization (224×224 resize, BGR→RGB) used to prepare `normalized_dataset/`.
+- `documentation.ipynb` — Full walkthrough of the normalization → PCA → KMeans → evaluation → visualization flow.
+
+Experimental scripts (for exploration only):
+
+- `trainer.py` — Early/trial trainer (EXPERIMENTAL)
+- `autoencoder_train.py` — Autoencoder experiments for dimensionality reduction (EXPERIMENTAL)
+- `cluster.py` — Alternate clustering prototype (EXPERIMENTAL)
+
+**Training / Run order (recommended):**
+
+1. Normalize images: `python clustering/cat_dog/normalization.py`
+2. (Optional) Generate embeddings: `python clustering/cat_dog/semi_trainer.py`
+3. Run clustering pipeline: `python clustering/cat_dog/semi_cluster.py`
+
+---
+
 # 🎯 **Unified Inference System — `model_tester.py`**
 
 This script allows you to test **any** of the trained models from a single entry point.
@@ -229,6 +261,7 @@ Then choose:
 4 → Brain Tumor Detection
 5 → Leaf Disease Classifier
 6 → Toxic Comments Classifier
+7 → Clustering (Cats vs Dogs)
 ```
 
 ---
@@ -263,6 +296,11 @@ Examples:
 ./Models/brain_tumor_model.keras
 ./Models/leaf_disease_model.keras
 ./Models/toxic_model.keras
+# Clustering pipeline outputs (examples)
+./clustering/cat_dog/normalized_dataset/
+./clustering/cat_dog/embeddings.npy
+./clustering/cat_dog/cluster_labels.csv
+./clustering/cat_dog/visualizations/cluster_tsne.png
 ```
 
 4. Now you can use `model_tester.py` to run inference.
@@ -284,6 +322,21 @@ Examples:
 ```
 
 This keeps all inference handling consistent with `model_tester.py`.
+
+---
+
+## 🔁 Recommended Clustering Artifacts Layout
+
+Keep clustering outputs alongside the clustering module to simplify debugging and reproducibility. Example structure:
+
+```
+clustering/cat_dog/
+│
+├── normalized_dataset/        # preprocessed images used for embedding extraction
+├── embeddings.npy            # numpy array of image embeddings produced by semi_trainer
+├── cluster_labels.csv        # mapping of image filename -> cluster id produced by semi_cluster
+└── visualizations/           # PCA/t-SNE/cluster plots (PNGs)
+```
 
 ---
 

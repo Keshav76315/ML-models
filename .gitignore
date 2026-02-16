@@ -59,6 +59,8 @@ nn.py
 # Standalone Projects
 resume_screener/
 ISL_detector/
+news/
+video_classification/
 
 # Keep these for portfolio/GitHub/Kaggle
 !Documentation.ipynb

@@ -384,6 +384,118 @@ def toxic_classifier():
             print(f"Error processing comment: {e}\n")
 
 
+def clustering_inference():
+    import os
+    import cv2
+    import numpy as np
+    import tensorflow as tf
+    from sklearn.cluster import KMeans
+    from sklearn.metrics import accuracy_score
+
+    print("Starting Clustering Inference (Cats vs Dogs)")
+
+    DATA_DIR = './tensorflow/clustering/cat_dog/normalized_dataset'
+
+    # Load encoder CNN model (must exist)
+    model_paths = [
+        './tensorflow/clustering/cat_dog/cnn_model.keras',
+        './Models/cnn_model.keras'
+    ]
+    model = None
+    for p in model_paths:
+        if os.path.exists(p):
+            model = tf.keras.models.load_model(p)
+            print(f"Loaded CNN model from: {p}")
+            break
+
+    if model is None:
+        print("CNN model not found. Please place 'cnn_model.keras' in the clustering folder or in ./Models/")
+        return
+
+    # Create embedding model (second-last layer)
+    try:
+        embedding_model = tf.keras.Model(inputs=model.inputs, outputs=model.layers[-2].output)
+    except Exception as e:
+        print(f"Warning: Could not create embedding model ({e}), using full model output.")
+        embedding_model = model
+
+    # Build dataset embeddings (this fits KMeans at runtime)
+    imgs = []
+    true_labels = []
+    if not os.path.exists(DATA_DIR):
+        print(f"Data directory not found: {DATA_DIR}")
+        return
+
+    for fname in os.listdir(DATA_DIR):
+        if not fname.lower().endswith(('.jpg', '.png', '.jpeg')):
+            continue
+        path = os.path.join(DATA_DIR, fname)
+        img = cv2.imread(path)
+        if img is None:
+            continue
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = cv2.resize(img, (224, 224))
+        img = img.astype('float32') / 255.0
+        imgs.append(img)
+        true_labels.append(0 if 'cat' in fname.lower() else 1)
+
+    if len(imgs) == 0:
+        print("No images found in normalized dataset.")
+        return
+
+    X = np.array(imgs)
+    embeddings = embedding_model.predict(X, verbose=0)
+
+    kmeans = KMeans(n_clusters=2, random_state=42, n_init=10)
+    clusters = kmeans.fit_predict(embeddings)
+
+    # Map cluster ids to true labels by majority vote
+    mapping = {}
+    for c in np.unique(clusters):
+        members = [true_labels[i] for i in range(len(clusters)) if clusters[i] == c]
+        if len(members) == 0:
+            mapping[c] = 0
+        else:
+            mapping[c] = int(round(sum(members) / len(members)))
+
+    print("KMeans fitted on embeddings. Cluster -> Label mapping:")
+    for k, v in mapping.items():
+        print(f"  Cluster {k} -> {'Dog' if v==1 else 'Cat'}")
+
+    print("Interactive clustering inference (uses fitted KMeans).")
+    while True:
+        img_path = input("Enter image path ('quit' to exit): ").strip()
+        if img_path.lower() == 'quit':
+            return
+        if not os.path.exists(img_path):
+            print("File not found. Try again.\n")
+            continue
+        try:
+            img = cv2.imread(img_path)
+            if img is None:
+                print("Could not read image. Try another file.\n")
+                continue
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img = cv2.resize(img, (224, 224))
+            img = img.astype('float32') / 255.0
+            img = np.expand_dims(img, axis=0)
+
+            emb = embedding_model.predict(img, verbose=0)
+            pred_cluster = int(kmeans.predict(emb)[0])
+            label = mapping.get(pred_cluster, 0)
+            label_name = 'Dog' if label == 1 else 'Cat'
+
+            # Distance-based confidence
+            dist = np.linalg.norm(emb - kmeans.cluster_centers_[pred_cluster])
+            other = np.linalg.norm(emb - kmeans.cluster_centers_[1-pred_cluster])
+            confidence = max(0.0, (other - dist) / (other + dist + 1e-8)) * 100
+
+            print(f"Predicted: {label_name} (cluster {pred_cluster})")
+            print(f"Confidence (distance-based): {confidence:.2f}%\n")
+        except Exception as e:
+            print(f"Error: {e}\n")
+
+
 print("\n===== ML Model Tester =====")
 print("0 - Language Classifier")
 print("1 - Sentiment Analysis")
@@ -392,9 +504,10 @@ print("3 - Mask Detector")
 print("4 - Tumor Detector")
 print("5 - Leaf Disease Classifier")
 print("6 - Toxic Comments Classifier")
+print("7 - Cat & Dog Clustering")
 print("============================\n")
 
-model_num = int(input("Which model do you want to use? (0-6): "))
+model_num = int(input("Which model do you want to use? (0-7): "))
 
 if model_num == 0:
     lang_classifier()
@@ -410,5 +523,7 @@ elif model_num == 5:
     leaf_disease()
 elif model_num == 6:
     toxic_classifier()
+elif model_num == 7:
+    clustering_inference()
 else:
     print("Invalid model number.")
